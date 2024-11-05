@@ -1,0 +1,50 @@
+package com.actours.jasperreport.controller;
+
+import com.actours.jasperreport.service.ReportService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api")
+public class ReportController{
+
+    @Autowired
+    private ReportService reportService;
+
+    @GetMapping("/reporte")
+    public void generarReporte(HttpServletResponse response,
+                            @RequestParam boolean muestraColumna1,
+                            @RequestParam boolean muestraColumna2,
+                            @RequestParam boolean muestraColumna3,
+                            @RequestParam boolean muestraColumna4,
+                            @RequestParam boolean muestraColumna5) {
+        System.out.println("Método generarReporte invocado");
+        List<String> visibleColumns = new ArrayList<>();
+        if (muestraColumna1) visibleColumns.add("columna1");
+        if (muestraColumna2) visibleColumns.add("columna2");
+        if (muestraColumna3) visibleColumns.add("columna3");
+        if (muestraColumna4) visibleColumns.add("columna4");
+        if (muestraColumna5) visibleColumns.add("columna5");
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("visibleColumns", visibleColumns);
+        String jrxmlFilePath = "reports/DynamicColumnReport.jrxml";
+        try {
+            reportService.exportReport(response, parameters, jrxmlFilePath);
+            System.out.println("Reporte generado y enviado");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error al generar el reporte: " + e.getMessage());
+            System.out.println("Ruta del JRXML: " + jrxmlFilePath);
+            System.out.println("Parámetros: " + parameters);
+        }        
+    }
+}
